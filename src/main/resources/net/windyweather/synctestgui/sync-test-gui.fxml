@@ -352,7 +352,7 @@
                         <Insets left="100.0" />
                      </HBox.margin>
                   </Button>
-                  <Button layoutX="363.0" layoutY="10.0" mnemonicParsing="false" onAction="#OnClickTwoToOne" text="2 -&gt; 1">
+                  <Button fx:id="btnTwoToOne" layoutX="363.0" layoutY="10.0" mnemonicParsing="false" onAction="#OnClickTwoToOne" text="2 -&gt; 1">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
@@ -360,7 +360,7 @@
                         <Insets left="100.0" />
                      </HBox.margin>
                   </Button>
-                  <Button layoutX="295.0" layoutY="10.0" mnemonicParsing="false" onAction="#OnClickOneToTwo" text="1 -&gt; 2">
+                  <Button fx:id="btnOneToTwo" layoutX="295.0" layoutY="10.0" mnemonicParsing="false" onAction="#OnClickOneToTwo" text="1 -&gt; 2">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
