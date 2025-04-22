@@ -6,6 +6,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.io.File;
+import java.nio.file.Path;
+
 public class STGController {
     public TreeTableView<SyncFileOperation> tvFileTree;
     public TreeTableColumn<SyncFileOperation, String> tcSourcePath;
@@ -33,7 +36,7 @@ public class STGController {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if(!newValue) {
                     System.out.println( String.format("Change FilePathOne? %s", txtFilePathOne.getText() ) );
-                    btnOneToTwo.setDisable( true );
+                    btnOneToTwo.setDisable( false );
                 }
             }
         });
@@ -44,7 +47,7 @@ public class STGController {
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 if(!newValue) {
                     System.out.println( String.format("Change FilePathTwo? %s", txtFilePathTwo.getText() ) );
-                    btnTwoToOne.setDisable( true );
+                    btnTwoToOne.setDisable( false );
                 }
             }
         });
@@ -62,6 +65,18 @@ public class STGController {
 
     public void OnClickOneToTwo(ActionEvent actionEvent) {
         System.out.println( "OnClickOneToTwo" );
+        /*
+            Load up the tree starting with the path in the PathOne
+         */
+        Path pathPathOne = new File( txtFilePathOne.getText() ).toPath();
+
+        SyncFileOperation treeNode=new SyncFileOperation(pathPathOne);
+        treeNode.getChildren().add(treeNode);
+
+        treeNode.setExpanded(true);
+
+        tvFileTree = new TreeTableView<SyncFileOperation>();
+
     }
 
     public void OnClickFilePathTwo(ActionEvent actionEvent) {
