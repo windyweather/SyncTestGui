@@ -5,9 +5,14 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 
 import java.io.File;
 import java.nio.file.Path;
+
+import org.apache.commons.io.FilenameUtils;
+//import org.codehaus.plexus.util;
+import org.codehaus.plexus.util.DirectoryScanner;
 
 public class STGController {
     public TreeTableView<SyncFileOperation> tvFileTree;
@@ -24,6 +29,11 @@ public class STGController {
     public Button btnOneToTwo;
     @FXML
     private Label welcomeText;
+
+    private void printSysOut( String str ) {
+        System.out.println( str );
+    }
+
 
     public STGController () {};
 
@@ -63,27 +73,66 @@ public class STGController {
         System.out.println( "OnClickTwoToOne" );
     }
 
+
+    private void GetTreeChildren( TreeItem<SyncFileOperation> treeNode ) {
+        /*
+            Get the children of this node, then for each that is a folder,
+            this again to get their children. Expand the whole tree.
+         */
+        SyncFileOperation sfo = treeNode.getValue();
+        String sPath = sfo.getFullPath();
+        printSysOut( "GetTreeChildren : "+sPath );
+
+        String[] saIncludeImages = new String[]{"*.*"  };
+
+        DirectoryScanner scanner = new DirectoryScanner();
+        scanner.setIncludes( saIncludeImages );
+        scanner.setCaseSensitive( false );
+        scanner.setBasedir( new File( sPath ));
+        scanner.scan();
+    }
+
     public void OnClickOneToTwo(ActionEvent actionEvent) {
         System.out.println( "OnClickOneToTwo" );
+
+        /*
+            Property Value Factories for Tree Columns
+         */
+        tcSourcePath.setCellValueFactory( new TreeItemPropertyValueFactory<>("SSourcePath"));
+        tcFileSize.setCellValueFactory( new TreeItemPropertyValueFactory<>("IntSize"));
+        tcActionPending.setCellValueFactory( new TreeItemPropertyValueFactory<>( "SOperation"));
+        tcStatus.setCellValueFactory( new TreeItemPropertyValueFactory<>("Status"));
+
+
         /*
             Load up the tree starting with the path in the PathOne
          */
         Path pathPathOne = new File( txtFilePathOne.getText() ).toPath();
 
-        SyncFileOperation treeNode=new SyncFileOperation(pathPathOne);
-        treeNode.getChildren().add(treeNode);
+        SyncFileOperation root = new SyncFileOperation(pathPathOne);
+        TreeItem<SyncFileOperation> treeNode = new TreeItem<> (root);
+        root.setExpanded(true);
 
-        treeNode.setExpanded(true);
+        tvFileTree.setRoot( treeNode );
 
-        tvFileTree = new TreeTableView<SyncFileOperation>();
+        /*
+            If the root is a folder, then scan it all the way down
+         */
+        if ( root.isDirectory() ) {
+            GetTreeChildren( treeNode );
+        }
 
     }
 
-    public void OnClickFilePathTwo(ActionEvent actionEvent) {
-        btnTwoToOne.setDisable( false );
-    }
 
     public void OnClickFilePathOne(ActionEvent actionEvent) {
+        txtFilePathOne.setText("D:\\zzSSATest\\BunchOfImages");
         btnOneToTwo.setDisable( false );
+    }
+
+
+    public void OnClickFilePathTwo(ActionEvent actionEvent) {
+        txtFilePathTwo.setText("D:\\zzSSATest\\SourceTest\\Stuff Here\\Stuff_2024_12_01_11_06_41_327.png");
+        btnTwoToOne.setDisable( false );
     }
 }
