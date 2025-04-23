@@ -10,9 +10,8 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import java.io.File;
 import java.nio.file.Path;
 
-import org.apache.commons.io.FilenameUtils;
-//import org.codehaus.plexus.util;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.apache.commons.io.FilenameUtils;
 
 public class STGController {
     public TreeTableView<SyncFileOperation> tvFileTree;
@@ -83,13 +82,21 @@ public class STGController {
         String sPath = sfo.getFullPath();
         printSysOut( "GetTreeChildren : "+sPath );
 
-        String[] saIncludeImages = new String[]{"*.*"  };
+
+        String[] saIncludeEverything = new String[]{"*.*"  };
 
         DirectoryScanner scanner = new DirectoryScanner();
-        scanner.setIncludes( saIncludeImages );
+        scanner.setIncludes( saIncludeEverything );
         scanner.setCaseSensitive( false );
         scanner.setBasedir( new File( sPath ));
         scanner.scan();
+
+       /*
+            Get a list of the source files we found
+        */
+        String[] sSourceFiles = scanner.getIncludedFiles();
+        
+
     }
 
     public void OnClickOneToTwo(ActionEvent actionEvent) {
