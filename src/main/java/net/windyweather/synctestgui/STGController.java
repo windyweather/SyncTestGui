@@ -80,23 +80,53 @@ public class STGController {
          */
         SyncFileOperation sfo = treeNode.getValue();
         String sPath = sfo.getFullPath();
-        printSysOut( "GetTreeChildren : "+sPath );
+        printSysOut("GetTreeChildren : " + sPath);
 
-
-        String[] saIncludeEverything = new String[]{"*.*"  };
+        String[] saIncludeEverything = new String[]{"*.*", "*"};
 
         DirectoryScanner scanner = new DirectoryScanner();
-        scanner.setIncludes( saIncludeEverything );
-        scanner.setCaseSensitive( false );
-        scanner.setBasedir( new File( sPath ));
+        scanner.setIncludes(saIncludeEverything);
+        scanner.setCaseSensitive(false);
+        scanner.setBasedir(new File(sPath));
         scanner.scan();
 
        /*
             Get a list of the source files we found
         */
         String[] sSourceFiles = scanner.getIncludedFiles();
-        
+        printSysOut("GetTreeChildren Scanner Found : " + String.valueOf(sSourceFiles.length));
 
+        for (String sSourceFile : sSourceFiles) {
+            String sDeeperPath = sPath + File.separator + sSourceFile;
+
+            File aFile = new File(sDeeperPath);
+            Path pDeeperPath = new File(sDeeperPath).toPath();
+
+            printSysOut("GetTreeChildren Add File : " + sDeeperPath);
+            SyncFileOperation sfoDeeper = new SyncFileOperation(pDeeperPath);
+            TreeItem<SyncFileOperation> deepNode = new TreeItem<>(sfoDeeper);
+            sfoDeeper.setExpanded(true);
+
+            treeNode.getChildren().add(deepNode);
+
+        }
+        /*
+            Scan all the dirs
+         */
+        String[] sSourceDirs = scanner.getIncludedDirectories();
+        for (String sSourceDir : sSourceDirs) {
+            String sDeeperPath = sPath + File.separator + sSourceDir;
+            Path pDeeperPath = new File(sDeeperPath).toPath();
+
+            printSysOut("GetTreeChildren Add Directory : " + sDeeperPath);
+            SyncFileOperation sfoDeeper = new SyncFileOperation(pDeeperPath);
+            TreeItem<SyncFileOperation> deepNode = new TreeItem<>(sfoDeeper);
+            sfoDeeper.setExpanded(true);
+
+            treeNode.getChildren().add(deepNode);
+
+            GetTreeChildren(deepNode);
+        }
     }
 
     public void OnClickOneToTwo(ActionEvent actionEvent) {
