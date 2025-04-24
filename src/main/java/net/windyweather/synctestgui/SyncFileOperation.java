@@ -107,74 +107,7 @@ public class SyncFileOperation extends TreeItem<String> {
         sOperation = SFO_COPY;
         Status = SFO_PEND;
 
-        //printSysOut("SynchFileOperation() path: "+fullPath );
 
-        /*
-            Don't try to be too clever. Iterate in our caller back
-            in the controller.
-         */
-        if ( false ) {
-            //set the value
-            if (!fullPath.endsWith(File.separator)) {
-                //set the value (which is what is displayed in the tree)
-                String value = file.toString();
-                int indexOf = value.lastIndexOf(File.separator);
-                if (indexOf > 0) {
-                    this.setValue(value.substring(indexOf + 1));
-                } else {
-                    this.setValue(value);
-                }
-                printSysOut("SFO() value " + value);
-            }
-        }
-
-        if ( false ) {
-            this.addEventHandler(TreeItem.branchExpandedEvent(), new EventHandler() {
-                @Override
-                public void handle(Event e) {
-                    SyncFileOperation source = (SyncFileOperation) e.getSource();
-                    if (source.isDirectory() && source.isExpanded()) {
-                        printSysOut("SFO() EventTreeItem Expanded folder" + source.fullPath);
-                        //ImageView iv = (ImageView) source.getGraphic();
-                        //iv.setImage(folderExpandImage);
-                    }
-                    try {
-                        if (source.getChildren().isEmpty()) {
-                            Path path = Paths.get(source.getFullPath());
-                            BasicFileAttributes attribs = Files.readAttributes(path, BasicFileAttributes.class);
-                            if (attribs.isDirectory()) {
-                                printSysOut("TreeItem.branchExpandedEvent dirSearch of " + path.toString());
-                                DirectoryStream<Path> dir = Files.newDirectoryStream(path);
-                                for (Path file : dir) {
-                                    SyncFileOperation treeNode = new SyncFileOperation(file);
-                                    source.getChildren().add(treeNode);
-                                }
-                            }
-                        } else {
-                            //if you want to implement rescanning a directory for changes this would be the place to do it
-                            printSysOut("SFO() EventTreeItem already expanded folder" + source.fullPath);
-                        }
-                    } catch (IOException x) {
-                        //x.printStackTrace();
-                        printSysOut("SFO Branch expanded event catch " + fullPath);
-                    }
-                }
-            });
-        } // if ( false )
-
-        if ( false ) {
-            this.addEventHandler(TreeItem.branchCollapsedEvent(), new EventHandler() {
-                @Override
-                public void handle(Event e) {
-                    SyncFileOperation source = (SyncFileOperation) e.getSource();
-                    if (source.isDirectory() && !source.isExpanded()) {
-                        //ImageView iv = (ImageView) source.getGraphic();
-                        //iv.setImage(folderCollapseImage);
-                        printSysOut("SFO() EventTreeItem Collapse Event" + source.fullPath);
-                    }
-                }
-            });
-        } // if (false )
 
     } // end of constructor
 } // end of SyncFileOperation class

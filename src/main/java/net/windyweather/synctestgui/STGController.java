@@ -26,8 +26,35 @@ public class STGController {
     public CheckBox chkIncludeSubfolders;
     public Button btnTwoToOne;
     public Button btnOneToTwo;
+    public Label lblLastSyncDateTime;
+    public Label lblTotalBytes;
+    public Label lblOperations;
+    public Label lblProgress;
     @FXML
     private Label welcomeText;
+
+
+    private  long longTotalBytes;
+    private int intOperations;
+
+    /*
+        Make the total bytes easily readable
+     */
+    private void SetTotalBytes() {
+
+        String sTotalBytes = "";
+
+        if ( longTotalBytes < 10000 )  {
+            sTotalBytes = String.valueOf(longTotalBytes);
+        } else if ( longTotalBytes < 10000000 ) {
+            sTotalBytes = String.valueOf( longTotalBytes / 1024 )+" KB";
+        } else if ( longTotalBytes < 10000000000L ) {
+            sTotalBytes = String.valueOf( longTotalBytes / (1024*1024) )+" MB";
+        } else if ( longTotalBytes < 10000000000000L ) {
+            sTotalBytes = String.valueOf( longTotalBytes / ( 1024L*1024L*1024L) )+" GB";
+        }
+        lblTotalBytes.setText( sTotalBytes);
+    }
 
     private void printSysOut( String str ) {
         System.out.println( str );
@@ -39,6 +66,8 @@ public class STGController {
     public void initialize() {
 
         System.out.println("STGController initialize called");
+
+        chkIncludeSubfolders.setSelected( true );
 
         txtFilePathOne.focusedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
@@ -105,10 +134,19 @@ public class STGController {
             printSysOut("GetTreeChildren Add File : " + sDeeperPath);
             SyncFileOperation sfoDeeper = new SyncFileOperation(pDeeperPath);
             TreeItem<SyncFileOperation> deepNode = new TreeItem<>(sfoDeeper);
-            sfoDeeper.setExpanded(true);
+            longTotalBytes += sfoDeeper.getIntSize();
 
             treeNode.getChildren().add(deepNode);
 
+        }
+        /*
+            Look in subfolders?
+         */
+        if ( !chkIncludeSubfolders.isSelected() ) {
+            /*
+                Nope, we are done
+             */
+            return;
         }
         /*
             Scan all the dirs
@@ -120,10 +158,12 @@ public class STGController {
 
             printSysOut("GetTreeChildren Add Directory : " + sDeeperPath);
             SyncFileOperation sfoDeeper = new SyncFileOperation(pDeeperPath);
+
             TreeItem<SyncFileOperation> deepNode = new TreeItem<>(sfoDeeper);
-            sfoDeeper.setExpanded(true);
+            deepNode.setExpanded(true);
 
             treeNode.getChildren().add(deepNode);
+            treeNode.setExpanded(true);
 
             GetTreeChildren(deepNode);
         }
@@ -140,24 +180,40 @@ public class STGController {
         tcActionPending.setCellValueFactory( new TreeItemPropertyValueFactory<>( "SOperation"));
         tcStatus.setCellValueFactory( new TreeItemPropertyValueFactory<>("Status"));
 
+        tcFileSize.setStyle("-fx-alignment: CENTER-RIGHT;");
+        tcActionPending.setStyle("-fx-alignment: CENTER;");
+        tcStatus.setStyle("-fx-alignment: CENTER;");
+
+        longTotalBytes = 0L;
+        intOperations = 0;
+
 
         /*
             Load up the tree starting with the path in the PathOne
          */
-        Path pathPathOne = new File( txtFilePathOne.getText() ).toPath();
+        File aFile = new File( txtFilePathOne.getText() );
+        Path pathPathOne = aFile.toPath();
+
+        if ( !aFile.exists() ) {
+            // nowhere....
+        }
 
         SyncFileOperation root = new SyncFileOperation(pathPathOne);
         TreeItem<SyncFileOperation> treeNode = new TreeItem<> (root);
-        root.setExpanded(true);
+        treeNode.setExpanded(true);
 
         tvFileTree.setRoot( treeNode );
-
+        longTotalBytes += root.getIntSize();
         /*
             If the root is a folder, then scan it all the way down
          */
         if ( root.isDirectory() ) {
             GetTreeChildren( treeNode );
         }
+        /*
+            Put a readable size in the display
+         */
+        SetTotalBytes();
 
     }
 
